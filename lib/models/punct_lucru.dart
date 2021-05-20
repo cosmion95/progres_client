@@ -2,6 +2,7 @@ import 'package:http/http.dart';
 import 'dart:convert';
 import 'localitate.dart';
 import 'domeniu.dart';
+import 'package:flutter/material.dart';
 
 class PunctLucru {
   final int id;
@@ -9,6 +10,7 @@ class PunctLucru {
   final String telefon;
   final String strada;
   final String nrStrada;
+  final int zileRezervariMax;
   final Localitate? localitate;
   final Domeniu? domeniu;
 
@@ -18,6 +20,7 @@ class PunctLucru {
       required this.telefon,
       required this.strada,
       required this.nrStrada,
+      required this.zileRezervariMax,
       required this.localitate,
       required this.domeniu});
 
@@ -29,6 +32,7 @@ class PunctLucru {
         telefon: json['telefon'],
         strada: json['strada'],
         nrStrada: json['nr_strada'],
+        zileRezervariMax: json['zile_rezervari_max'],
         localitate: localitate,
         domeniu: domeniu);
   }
@@ -63,7 +67,10 @@ Future<List<PunctLucru>> getPuncteLucru(Localitate? localitate,
     List<PunctLucru> puncte = [];
     for (int i = 0; i < jsonList.length; i++) {
       Domeniu dom = new Domeniu(
-          id: jsonList[i]['dom_id'], denumire: jsonList[i]['dom_denumire']);
+          id: jsonList[i]['dom_id'],
+          denumire: jsonList[i]['dom_denumire'],
+          icon: Icon(IconData(jsonList[i]['dom_icon_id'],
+              fontFamily: jsonList[i]['dom_font_family'])));
       PunctLucru punct = PunctLucru.fromJson(jsonList[i], localitate, dom);
       puncte.add(punct);
     }

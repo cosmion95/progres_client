@@ -1,14 +1,19 @@
 import 'package:http/http.dart';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 class Domeniu {
   final int id;
   final String denumire;
+  final Icon icon;
 
-  Domeniu({required this.id, required this.denumire});
+  Domeniu({required this.id, required this.denumire, required this.icon});
 
   factory Domeniu.fromJson(Map<String, dynamic> json) {
-    return Domeniu(id: json['id'], denumire: json['denumire']);
+    return Domeniu(
+        id: json['id'],
+        denumire: json['denumire'],
+        icon: Icon(IconData(json['icon_id'], fontFamily: json['font_family'])));
   }
 }
 

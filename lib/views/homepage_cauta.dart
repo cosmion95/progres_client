@@ -1,9 +1,12 @@
+import 'package:demo_login_app/models/program_punct.dart';
+import 'package:demo_login_app/views/punct_lucru.dart';
 import 'package:flutter/material.dart';
 import '../models/client.dart';
 import '../models/judet.dart';
 import '../models/localitate.dart';
 import '../models/domeniu.dart';
 import '../models/punct_lucru.dart';
+import '../widget/punct_list_widget.dart';
 
 class HomepageCauta extends StatefulWidget {
   HomepageCauta(this.client, this.authToken);
@@ -26,29 +29,39 @@ class HomepageCautaState extends State<HomepageCauta> {
   Future<List<Localitate>>? localitati;
   TextEditingController cuvinteCheieController = TextEditingController();
 
+  Future<void> detaliiPunct(PunctLucru punctLucru) async {
+    DateTime urmatoareaZiLucratoare =
+        await getUrmatoareaZiLucratoare(punctLucru, widget.authToken);
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => PunctLucruView(punctLucru, widget.client,
+            widget.authToken, urmatoareaZiLucratoare)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    judetAles = widget.client.localitate?.judet;
-    localitateAleasa = widget.client.localitate;
+    if (judetAles == null) {
+      judetAles = widget.client.localitate?.judet;
+      denumireJudetAles = judetAles!.denumire;
+      localitateAleasa = widget.client.localitate;
+      denumireLocalitateAleasa = localitateAleasa!.denumire;
+    }
+
     localitati = getLocalitati(judetAles);
 
-    denumireJudetAles = judetAles!.denumire;
-    denumireLocalitateAleasa = localitateAleasa!.denumire;
-
     return Scaffold(
-        backgroundColor: Colors.lime,
+        backgroundColor: Colors.blueGrey,
         body: SafeArea(
             child: Column(
           children: [
             Container(
-                color: Colors.amber,
+                color: Colors.blueGrey.shade100,
                 child: Row(
                   children: [
                     Expanded(
                         child: TextFormField(
                       controller: cuvinteCheieController,
                       decoration: InputDecoration(
-                        hintText: "Cauta",
+                        hintText: "Cauta...",
                         border: OutlineInputBorder(),
                       ),
                     )),
@@ -181,9 +194,11 @@ class HomepageCautaState extends State<HomepageCauta> {
                                       if (value != null) {
                                         domeniuAles = new Domeniu(
                                             id: value.id,
-                                            denumire: value.denumire);
+                                            denumire: value.denumire,
+                                            icon: value.icon);
+                                        denumireDomeniuAles =
+                                            domeniuAles!.denumire;
                                       }
-                                      print(denumireDomeniuAles);
                                     });
                                   },
                                 ),
@@ -198,7 +213,21 @@ class HomepageCautaState extends State<HomepageCauta> {
                               ));
                     },
                   )),
-                  ElevatedButton(onPressed: null, child: Icon(Icons.search))
+                  ElevatedButton(
+                      onPressed: () {
+                        domeniuAles = null;
+                        denumireDomeniuAles = "Domeniu";
+                        cuvinteCheieController.text = "";
+                        setState(() {});
+                      },
+                      child: Icon(Icons.refresh)),
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Colors.orange.shade300),
+                      onPressed: () {
+                        setState(() {});
+                      },
+                      child: Icon(Icons.search))
                 ]),
                 FutureBuilder<List<PunctLucru>>(
                   future: getPuncteLucru(localitateAleasa, domeniuAles,
@@ -219,8 +248,13 @@ class HomepageCautaState extends State<HomepageCauta> {
                                     shrinkWrap: true,
                                     itemBuilder:
                                         (BuildContext context, int index) {
-                                      return Text(
-                                          '${snapshot.data![index].denumire}');
+                                      return GestureDetector(
+                                        onTap: () {
+                                          detaliiPunct(snapshot.data![index]);
+                                        },
+                                        child: PunctListWidget(
+                                            snapshot.data![index]),
+                                      );
                                     })))
                         : Padding(
                             padding:
