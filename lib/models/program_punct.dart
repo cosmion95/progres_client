@@ -2,6 +2,8 @@ import 'package:demo_login_app/models/punct_lucru.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:flutter/material.dart';
 
 class ProgramPunct {
   final DateTime data;
@@ -168,6 +170,80 @@ Future<int> getProcentOcupare(
     String jsonString = response.body.substring(1, response.body.length - 1);
     jsonString = jsonString.replaceAll("\\", "");
     return int.parse(jsonDecode(jsonString)['procent']);
+  } else {
+    throw jsonDecode(response.body)['error'];
+  }
+}
+
+Future<List<Appointment>> getProgramNeeligibil(
+    PunctLucru punct, String authToken) async {
+  final uri = "http://10.0.2.2:8000/rest_api/terti/get_program_neeligibil/" +
+      authToken +
+      "/";
+  final headers = {'Content-Type': 'application/json'};
+
+  Map<String, dynamic> body = {'punct': punct.id};
+
+  String jsonBody = json.encode(body);
+  final encoding = Encoding.getByName('utf-8');
+
+  Response response = await post(
+    Uri.parse(uri),
+    headers: headers,
+    body: jsonBody,
+    encoding: encoding,
+  );
+
+  if (response.statusCode == 200) {
+    String jsonString = response.body.substring(1, response.body.length - 1);
+    jsonString = jsonString.replaceAll("\\", "");
+    List<dynamic> jsonList = jsonDecode(jsonString);
+    List<Appointment> appointments = [];
+    for (int i = 0; i < jsonList.length; i++) {
+      Map<String, dynamic> jsonMap = jsonList[i];
+      DateTime tempDate =
+          new DateFormat("dd.MM.yyyy", 'en_US').parse(jsonMap['data']);
+
+      dynamic ora = jsonMap['ora_start'];
+      dynamic min = (jsonMap['ora_start'] - ora.floor()) * 100;
+
+      //nu ii place ora 00:00:00
+      if (min.toInt() == 0) {
+        min = 1;
+      }
+
+      DateTime start = DateTime(tempDate.year, tempDate.month, tempDate.day,
+          ora.toInt(), min.toInt(), 0);
+
+      ora = jsonMap['ora_final'];
+      min = (jsonMap['ora_final'] - ora.floor()) * 100;
+
+      DateTime end = DateTime(tempDate.year, tempDate.month, tempDate.day,
+          ora.toInt(), min.toInt(), 0);
+
+      Color color = Colors.blue;
+      String subiect = "Rezervare";
+
+      switch (jsonMap['tip']) {
+        case "pauza_out":
+          color = Colors.orange;
+          subiect = "";
+          break;
+        case "zi_nelucratoare":
+          color = Colors.red;
+          subiect = "";
+          break;
+        case "pauza_in":
+          color = Colors.yellow;
+          subiect = "Pauza";
+          break;
+      }
+
+      Appointment appointment = new Appointment(
+          startTime: start, endTime: end, color: color, subject: subiect);
+      appointments.add(appointment);
+    }
+    return appointments;
   } else {
     throw jsonDecode(response.body)['error'];
   }

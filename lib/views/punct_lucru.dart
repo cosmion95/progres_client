@@ -6,6 +6,7 @@ import '../models/punct_lucru.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../widget/punct_details_widget.dart';
 import '../models/program_punct.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class PunctLucruView extends StatefulWidget {
   PunctLucruView(this.punctLucru, this.client, this.authToken,
@@ -38,6 +39,14 @@ class PunctLucruViewState extends State<PunctLucruView> {
     DateTime dat =
         await getUrmatoareaZiLucratoare(widget.punctLucru, widget.authToken);
     print(dat);
+  }
+
+  Future<void> detaliiPunct() async {
+    List<Appointment> rezervari =
+        await getProgramNeeligibil(widget.punctLucru, widget.authToken);
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => DetaliiPunctLucru(widget.client, widget.authToken,
+            widget.punctLucru, _selectedDay!, _lastDay!, rezervari)));
   }
 
   Color? calculeazaCuloare(double procent) {
@@ -174,14 +183,7 @@ class PunctLucruViewState extends State<PunctLucruView> {
                                         : Colors.grey,
                                     onPressed: eZiLucratoare
                                         ? () {
-                                            Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        DetaliiPunctLucru(
-                                                            widget.client,
-                                                            widget.authToken,
-                                                            widget.punctLucru,
-                                                            _selectedDay!)));
+                                            detaliiPunct();
                                           }
                                         : null,
                                     child: Icon(Icons.add))))
