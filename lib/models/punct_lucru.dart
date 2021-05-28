@@ -5,6 +5,7 @@ import 'domeniu.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/tip_rezervare.dart';
+import 'client.dart' as clientAplicatie;
 
 class PunctLucru {
   final int id;
@@ -123,11 +124,57 @@ Future<Map<String, dynamic>> verificareTimpAles(PunctLucru punctLucru,
           ':' +
           jsonDecode(jsonString)['minut'];
       DateTime tempDate =
-          new DateFormat("dd.MM.yyyy hh:mm", 'en_US').parse(data);
+          new DateFormat("dd.MM.yyyy HH:mm", 'en_US').parse(data);
       return {'accepted': true, 'data': tempDate};
     } else {
       return {'accepted': false, 'data': null};
     }
+  } else {
+    throw jsonDecode(response.body)['error'];
+  }
+}
+
+Future<bool> inregistrareCerereRezervare(
+    clientAplicatie.Client client,
+    PunctLucru punctLucru,
+    DateTime data,
+    TipRezervare? tip,
+    String mesaj,
+    String authToken) async {
+  final uri =
+      "http://10.0.2.2:8000/rest_api/rezervare/inregistrare_rezervare/" +
+          authToken +
+          "/";
+  final headers = {'Content-Type': 'application/json'};
+
+  Map<String, dynamic> body = {
+    'client': client.id,
+    'punct': punctLucru.id,
+    'data': data.day.toString() +
+        "." +
+        data.month.toString() +
+        "." +
+        data.year.toString() +
+        ' ' +
+        data.hour.toString() +
+        ':' +
+        data.minute.toString(),
+    'tip': tip == null ? null : tip.id,
+    'mesaj': mesaj
+  };
+
+  String jsonBody = json.encode(body);
+  final encoding = Encoding.getByName('utf-8');
+
+  Response response = await post(
+    Uri.parse(uri),
+    headers: headers,
+    body: jsonBody,
+    encoding: encoding,
+  );
+
+  if (response.statusCode == 200) {
+    return true;
   } else {
     throw jsonDecode(response.body)['error'];
   }

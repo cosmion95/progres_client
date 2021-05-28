@@ -1,11 +1,13 @@
-import 'package:demo_login_app/models/punct_lucru.dart';
-import 'package:flutter/material.dart';
+import 'package:demo_login_app/widget/trimitere_rezervare_dialog.dart';
+
 import '../models/punct_lucru.dart';
+import 'package:flutter/material.dart';
 import '../models/client.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import '../models/tip_rezervare.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CreareRezervareDialog extends StatefulWidget {
   CreareRezervareDialog(
@@ -23,6 +25,7 @@ class CreareRezervareDialogState extends State<CreareRezervareDialog> {
   TipRezervare? tipRezervareAles;
   bool ziValida = true;
   String mesaj = "";
+  bool mesajValid = false;
 
   TextEditingController mesajController = new TextEditingController();
 
@@ -33,6 +36,15 @@ class CreareRezervareDialogState extends State<CreareRezervareDialog> {
     } else {
       return s;
     }
+  }
+
+  bool checkMesajAndTip(String msg) {
+    if (msg.length < 10 && tipRezervareAles == null) {
+      mesajValid = false;
+      return false;
+    }
+    mesajValid = true;
+    return true;
   }
 
   void resetZi() {
@@ -117,14 +129,20 @@ class CreareRezervareDialogState extends State<CreareRezervareDialog> {
                       ));
             },
           ),
-          Text(
-            ziValida
-                ? ""
-                : "Ora aleasa este invalida pentru acest tip de rezervare. Alegeti alta ora sau schimbati tipul rezervarii.",
-            style: TextStyle(color: Colors.red),
-          ),
+          Padding(
+              padding: EdgeInsets.only(bottom: 10),
+              child: Text(
+                ziValida
+                    ? ""
+                    : "Perioada sau tipul ales este in conflict cu programul de lucru sau cu alte rezervari.",
+                style: TextStyle(color: Colors.red, fontSize: 12),
+              )),
           TextFormField(
             controller: mesajController,
+            autovalidateMode: AutovalidateMode.always,
+            validator: (value) => checkMesajAndTip(value!)
+                ? null
+                : "Mesajul sau tipul este obligatoriu.",
             decoration: InputDecoration(
               hintText: "Mesaj",
               border: OutlineInputBorder(),
@@ -133,22 +151,39 @@ class CreareRezervareDialogState extends State<CreareRezervareDialog> {
               new LengthLimitingTextInputFormatter(256),
             ],
           ),
-          Text(
-            tipRezervareAles == null || mesaj.length < 1
-                ? "Inainte de trimitere completati mesajul sau alegeti un tip de rezervare."
-                : "",
-            style: TextStyle(color: Colors.amber),
-          ),
         ],
       ),
       actions: <Widget>[
         TextButton(
-          onPressed: () => Navigator.pop(context, 'Cancel'),
-          child: const Text('Cancel'),
+          onPressed: () => Navigator.pop(context, 'cancel'),
+          child: const Text('Renunta'),
         ),
         TextButton(
-          onPressed: () => Navigator.pop(context, 'OK'),
-          child: const Text('OK'),
+          onPressed: () {
+            if (!mesajValid) {
+              Fluttertoast.showToast(
+                  msg: "Mesajul sau tipul este obligatoriu",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  fontSize: 16.0);
+            } else {
+              showDialog<String>(
+                barrierDismissible: false,
+                context: context,
+                builder: (BuildContext context) => TrimitereRezervareDialog(
+                    widget.punctLucru,
+                    widget.client,
+                    widget.authToken,
+                    ziModificata!,
+                    tipRezervareAles,
+                    mesajController.text),
+              ).then((value) => {Navigator.pop(context, 'ok')});
+            }
+          },
+          child: const Text('Creare'),
         ),
       ],
     );

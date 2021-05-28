@@ -70,9 +70,7 @@ class PunctListWidgetState extends State<PunctListWidget> {
                             child: FloatingActionButton(
                               onPressed: () {
                                 Fluttertoast.showToast(
-                                    msg: "Calling " +
-                                        widget.punctLucru.telefon +
-                                        "...",
+                                    msg: "Apelare " + widget.punctLucru.telefon,
                                     toastLength: Toast.LENGTH_SHORT,
                                     gravity: ToastGravity.CENTER,
                                     timeInSecForIosWeb: 1,

@@ -42,8 +42,8 @@ class PunctLucruViewState extends State<PunctLucruView> {
   }
 
   Future<void> detaliiPunct() async {
-    List<Appointment> rezervari =
-        await getProgramNeeligibil(widget.punctLucru, widget.authToken);
+    List<Appointment> rezervari = await getProgramNeeligibil(
+        widget.client, widget.punctLucru, widget.authToken);
     Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => DetaliiPunctLucru(widget.client, widget.authToken,
             widget.punctLucru, _selectedDay!, _lastDay!, rezervari)));

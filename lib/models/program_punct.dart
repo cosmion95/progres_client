@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:flutter/material.dart';
+import 'client.dart' as clientAplicatie;
 
 class ProgramPunct {
   final DateTime data;
@@ -176,13 +177,13 @@ Future<int> getProcentOcupare(
 }
 
 Future<List<Appointment>> getProgramNeeligibil(
-    PunctLucru punct, String authToken) async {
+    clientAplicatie.Client client, PunctLucru punct, String authToken) async {
   final uri = "http://10.0.2.2:8000/rest_api/terti/get_program_neeligibil/" +
       authToken +
       "/";
   final headers = {'Content-Type': 'application/json'};
 
-  Map<String, dynamic> body = {'punct': punct.id};
+  Map<String, dynamic> body = {'punct': punct.id, 'client': client.id};
 
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
@@ -222,25 +223,38 @@ Future<List<Appointment>> getProgramNeeligibil(
           ora.toInt(), min.toInt(), 0);
 
       Color color = Colors.blue;
-      String subiect = "Rezervare";
+      String? notes;
 
       switch (jsonMap['tip']) {
         case "pauza_out":
-          color = Colors.orange;
-          subiect = "";
+          color = Colors.grey;
           break;
         case "zi_nelucratoare":
-          color = Colors.red;
-          subiect = "";
+          color = Colors.grey;
           break;
         case "pauza_in":
+          color = Colors.blueGrey;
+          break;
+        case "proprie_trimisa":
           color = Colors.yellow;
-          subiect = "Pauza";
+          notes = jsonMap['rezervare_id'].toString();
+          break;
+        case "proprie_anulata":
+          color = Colors.red;
+          notes = jsonMap['rezervare_id'].toString();
+          break;
+        case "proprie_validata":
+          color = Colors.green;
+          notes = jsonMap['rezervare_id'].toString();
           break;
       }
 
       Appointment appointment = new Appointment(
-          startTime: start, endTime: end, color: color, subject: subiect);
+          startTime: start,
+          endTime: end,
+          color: color,
+          notes: notes,
+          subject: jsonMap['subiect']);
       appointments.add(appointment);
     }
     return appointments;
