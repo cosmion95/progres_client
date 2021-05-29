@@ -56,17 +56,9 @@ class _RegisterPageState extends State<RegisterPage> {
           passController.text,
           telefonController.text,
           localitateAleasa);
-      Client client = new Client(
-          id: int.parse(clientMap["id"]),
-          nume: numeController.text,
-          prenume: prenumeController.text,
-          email: emailController.text,
-          telefon: telefonController.text,
-          localitate: localitateAleasa,
-          rataPrezenta: 100);
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
-              RegisterToken(client, clientMap["auth_token"])));
+              RegisterToken(emailController.text, clientMap["auth_token"])));
     } catch (e) {
       errorMsg = e.toString();
       setState(() {});

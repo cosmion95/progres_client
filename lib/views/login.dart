@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'register.dart';
 import '../models/client.dart';
-import 'homepage.dart';
+import 'login_token.dart';
+import 'package:crypt/crypt.dart';
 
 void main() {
   runApp(MyApp());
@@ -55,10 +56,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> loginButtonPress() async {
     if (_validEmail) {
       try {
-        String token = await login(emailController.text, passController.text);
-        Client client = await getClientFromEmail(emailController.text, token);
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => Homepage(client, token)));
+        String clientSalt = await getSalt(emailController.text);
+        var hashPass = Crypt.sha256(passController.text, salt: clientSalt);
+        Map<String, dynamic> clientMap =
+            await login(emailController.text, hashPass.toString());
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                LoginToken(emailController.text, clientMap["auth_token"])));
       } catch (e) {
         errorMsg = e.toString();
       }

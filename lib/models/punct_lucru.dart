@@ -44,7 +44,7 @@ class PunctLucru {
 Future<List<PunctLucru>> getPuncteLucru(Localitate? localitate,
     Domeniu? domeniu, String cuvantCheie, String authToken) async {
   final uri =
-      "http://10.0.2.2:8000/rest_api/terti/get_puncte_lucru/" + authToken + "/";
+      "http://10.0.2.2:8000/rest_api/tert/get_puncte_lucru/" + authToken + "/";
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {

@@ -18,7 +18,7 @@ class TipRezervare {
 
 Future<List<TipRezervare>> getTipuriRezervare(
     PunctLucru punctLucru, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/terti/get_tipuri_rezervare/" +
+  final uri = "http://10.0.2.2:8000/rest_api/tert/get_tipuri_rezervare/" +
       authToken +
       "/";
   final headers = {'Content-Type': 'application/json'};

@@ -57,7 +57,6 @@ Future<Map<String, dynamic>> registerClient(String nume, String prenume,
     body: jsonBody,
     encoding: encoding,
   );
-  print(response.body);
 
   if (response.statusCode == 201) {
     return jsonDecode(response.body);
@@ -66,14 +65,17 @@ Future<Map<String, dynamic>> registerClient(String nume, String prenume,
   }
 }
 
-Future<void> checkRegisterToken(
-    Client client, String registerToken, String authToken) async {
+Future<void> verificaCodInregistrare(
+    String clientEmail, String codInregistrare, String authToken) async {
   final uri = 'http://10.0.2.2:8000/rest_api/client/validare_cont_client/' +
       authToken +
       '/';
   final headers = {'Content-Type': 'application/json'};
 
-  Map<String, dynamic> body = {'client_id': client.id, 'token': registerToken};
+  Map<String, dynamic> body = {
+    'client_email': clientEmail,
+    'token': codInregistrare
+  };
 
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
@@ -84,21 +86,21 @@ Future<void> checkRegisterToken(
     body: jsonBody,
     encoding: encoding,
   );
-  print(response.body);
 
   if (response.statusCode != 200) {
     throw jsonDecode(response.body)['error'];
   }
 }
 
-Future<void> resendRegisterToken(Client client, String authToken) async {
+Future<void> retrimiteCodInregistrare(
+    String clientEmail, String authToken) async {
   final uri =
       'http://10.0.2.2:8000/rest_api/client/generare_cod_inregistrare/' +
           authToken +
           '/';
   final headers = {'Content-Type': 'application/json'};
 
-  Map<String, dynamic> body = {'email': client.email};
+  Map<String, dynamic> body = {'email': clientEmail};
 
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
@@ -109,14 +111,13 @@ Future<void> resendRegisterToken(Client client, String authToken) async {
     body: jsonBody,
     encoding: encoding,
   );
-  print(response.body);
 
   if (response.statusCode != 201) {
     throw jsonDecode(response.body)['error'];
   }
 }
 
-Future<String> login(String email, String pass) async {
+Future<Map<String, dynamic>> login(String email, String pass) async {
   final uri = 'http://10.0.2.2:8000/rest_api/client/login/';
   final headers = {'Content-Type': 'application/json'};
 
@@ -131,13 +132,61 @@ Future<String> login(String email, String pass) async {
     body: jsonBody,
     encoding: encoding,
   );
-  print(response.body);
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw jsonDecode(response.body)['error'];
+  }
+}
+
+Future<void> verificaCodLogin(
+    String clientEmail, String codInregistrare, String authToken) async {
+  final uri =
+      'http://10.0.2.2:8000/rest_api/client/validare_login/' + authToken + '/';
+  final headers = {'Content-Type': 'application/json'};
+
+  Map<String, dynamic> body = {
+    'client_email': clientEmail,
+    'token': codInregistrare
+  };
+
+  String jsonBody = json.encode(body);
+  final encoding = Encoding.getByName('utf-8');
+
+  Response response = await post(
+    Uri.parse(uri),
+    headers: headers,
+    body: jsonBody,
+    encoding: encoding,
+  );
 
   if (response.statusCode != 200) {
     throw jsonDecode(response.body)['error'];
   }
+}
 
-  return jsonDecode(response.body)["client_token"];
+Future<void> retrimiteCodLogin(String clientEmail, String authToken) async {
+  final uri = 'http://10.0.2.2:8000/rest_api/client/generare_cod_login/' +
+      authToken +
+      '/';
+  final headers = {'Content-Type': 'application/json'};
+
+  Map<String, dynamic> body = {'email': clientEmail};
+
+  String jsonBody = json.encode(body);
+  final encoding = Encoding.getByName('utf-8');
+
+  Response response = await post(
+    Uri.parse(uri),
+    headers: headers,
+    body: jsonBody,
+    encoding: encoding,
+  );
+
+  if (response.statusCode != 201) {
+    throw jsonDecode(response.body)['error'];
+  }
 }
 
 Future<Client> getClientFromEmail(String email, String authToken) async {
@@ -188,4 +237,29 @@ Future<Client> getClientFromEmail(String email, String authToken) async {
       rataPrezenta: clientMap["rata_prezenta"]);
 
   return client;
+}
+
+Future<String> getSalt(String email) async {
+  final uri = "http://10.0.2.2:8000/rest_api/client/get_salt/";
+  final headers = {'Content-Type': 'application/json'};
+
+  Map<String, dynamic> body = {'email': email};
+
+  String jsonBody = json.encode(body);
+  final encoding = Encoding.getByName('utf-8');
+
+  Response response = await post(
+    Uri.parse(uri),
+    headers: headers,
+    body: jsonBody,
+    encoding: encoding,
+  );
+
+  if (response.statusCode == 200) {
+    String jsonString = response.body.substring(1, response.body.length - 1);
+    jsonString = jsonString.replaceAll("\\", "");
+    return jsonDecode(jsonString)['salt'];
+  } else {
+    throw jsonDecode(response.body)['error'];
+  }
 }

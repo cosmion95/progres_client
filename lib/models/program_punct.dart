@@ -79,9 +79,8 @@ class ProgramPunct {
 
 Future<List<ProgramPunct>> getProgramPunct(
     PunctLucru punct, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/terti/get_program_punct/" +
-      authToken +
-      "/";
+  final uri =
+      "http://10.0.2.2:8000/rest_api/tert/get_program_punct/" + authToken + "/";
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {'punct': punct.id};
@@ -114,7 +113,7 @@ Future<List<ProgramPunct>> getProgramPunct(
 Future<DateTime> getUrmatoareaZiLucratoare(
     PunctLucru punct, String authToken) async {
   final uri =
-      "http://10.0.2.2:8000/rest_api/terti/get_urmatoarea_zi_lucratoare/" +
+      "http://10.0.2.2:8000/rest_api/tert/get_urmatoarea_zi_lucratoare/" +
           authToken +
           "/";
   final headers = {'Content-Type': 'application/json'};
@@ -143,7 +142,7 @@ Future<DateTime> getUrmatoareaZiLucratoare(
 
 Future<int> getProcentOcupare(
     PunctLucru punctLucru, DateTime data, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/terti/get_procent_ocupare/" +
+  final uri = "http://10.0.2.2:8000/rest_api/tert/get_procent_ocupare/" +
       authToken +
       "/";
   final headers = {'Content-Type': 'application/json'};
@@ -178,7 +177,7 @@ Future<int> getProcentOcupare(
 
 Future<List<Appointment>> getProgramNeeligibil(
     clientAplicatie.Client client, PunctLucru punct, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/terti/get_program_neeligibil/" +
+  final uri = "http://10.0.2.2:8000/rest_api/tert/get_program_neeligibil/" +
       authToken +
       "/";
   final headers = {'Content-Type': 'application/json'};
