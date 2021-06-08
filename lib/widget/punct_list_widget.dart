@@ -13,26 +13,32 @@ class PunctListWidget extends StatefulWidget {
 class PunctListWidgetState extends State<PunctListWidget> {
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        leading: Container(
-          padding: EdgeInsets.only(right: 12.0),
-          decoration: new BoxDecoration(
-              border: new Border(
-                  right: new BorderSide(width: 1.0, color: Colors.white24))),
-          child: widget.punctLucru.domeniu!.icon,
-        ),
-        title: Text(
-          widget.punctLucru.denumire,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        subtitle: Row(
-          children: <Widget>[
-            Text(widget.punctLucru.strada + " " + widget.punctLucru.nrStrada,
-                style: TextStyle(color: Colors.white))
-          ],
-        ),
-        trailing:
-            Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0));
+    return Padding(
+        padding: EdgeInsets.only(left: 20, right: 20),
+        child: ListTile(
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            leading: Container(
+              padding: EdgeInsets.only(right: 12.0),
+              decoration: new BoxDecoration(
+                  border: new Border(
+                      right:
+                          new BorderSide(width: 1.0, color: Colors.white24))),
+              child: widget.punctLucru.domeniu!.icon,
+            ),
+            title: Text(
+              widget.punctLucru.denumire,
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Row(
+              children: <Widget>[
+                Text(
+                    widget.punctLucru.strada + " " + widget.punctLucru.nrStrada,
+                    style: TextStyle(color: Colors.white))
+              ],
+            ),
+            trailing: Icon(Icons.keyboard_arrow_right,
+                color: Colors.white, size: 30.0)));
   }
 }

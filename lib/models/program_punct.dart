@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:flutter/material.dart';
 import 'client.dart' as clientAplicatie;
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class ProgramPunct {
   final DateTime data;
@@ -79,8 +81,9 @@ class ProgramPunct {
 
 Future<List<ProgramPunct>> getProgramPunct(
     PunctLucru punct, String authToken) async {
-  final uri =
-      "http://10.0.2.2:8000/rest_api/tert/get_program_punct/" + authToken + "/";
+  final uri = "https://10.0.2.2:8000/rest_api/tert/get_program_punct/" +
+      authToken +
+      "/";
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {'punct': punct.id};
@@ -88,7 +91,12 @@ Future<List<ProgramPunct>> getProgramPunct(
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -113,7 +121,7 @@ Future<List<ProgramPunct>> getProgramPunct(
 Future<DateTime> getUrmatoareaZiLucratoare(
     PunctLucru punct, String authToken) async {
   final uri =
-      "http://10.0.2.2:8000/rest_api/tert/get_urmatoarea_zi_lucratoare/" +
+      "https://10.0.2.2:8000/rest_api/tert/get_urmatoarea_zi_lucratoare/" +
           authToken +
           "/";
   final headers = {'Content-Type': 'application/json'};
@@ -123,7 +131,12 @@ Future<DateTime> getUrmatoareaZiLucratoare(
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -142,7 +155,7 @@ Future<DateTime> getUrmatoareaZiLucratoare(
 
 Future<int> getProcentOcupare(
     PunctLucru punctLucru, DateTime data, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/tert/get_procent_ocupare/" +
+  final uri = "https://10.0.2.2:8000/rest_api/tert/get_procent_ocupare/" +
       authToken +
       "/";
   final headers = {'Content-Type': 'application/json'};
@@ -159,7 +172,12 @@ Future<int> getProcentOcupare(
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -176,18 +194,23 @@ Future<int> getProcentOcupare(
 }
 
 Future<List<Appointment>> getProgramNeeligibil(
-    clientAplicatie.Client client, PunctLucru punct, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/tert/get_program_neeligibil/" +
+    clientAplicatie.Client c, PunctLucru punct, String authToken) async {
+  final uri = "https://10.0.2.2:8000/rest_api/tert/get_program_neeligibil/" +
       authToken +
       "/";
   final headers = {'Content-Type': 'application/json'};
 
-  Map<String, dynamic> body = {'punct': punct.id, 'client': client.id};
+  Map<String, dynamic> body = {'punct': punct.id, 'client_id': c.id};
 
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,

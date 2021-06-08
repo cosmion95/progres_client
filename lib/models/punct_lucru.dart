@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/tip_rezervare.dart';
 import 'client.dart' as clientAplicatie;
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class PunctLucru {
   final int id;
@@ -42,21 +44,27 @@ class PunctLucru {
 }
 
 Future<List<PunctLucru>> getPuncteLucru(Localitate? localitate,
-    Domeniu? domeniu, String cuvantCheie, String authToken) async {
+    Domeniu? domeniu, String cuvantCheie, String authToken, int pagina) async {
   final uri =
-      "http://10.0.2.2:8000/rest_api/tert/get_puncte_lucru/" + authToken + "/";
+      "https://10.0.2.2:8000/rest_api/tert/get_puncte_lucru/" + authToken + "/";
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {
     'localitate': localitate?.id,
     'domeniu': domeniu?.id,
-    'cuvinte': cuvantCheie
+    'cuvinte': cuvantCheie,
+    'pagina': pagina
   };
 
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -78,6 +86,8 @@ Future<List<PunctLucru>> getPuncteLucru(Localitate? localitate,
       puncte.add(punct);
     }
     return puncte;
+  } else if (response.statusCode == 204) {
+    return [];
   } else {
     throw jsonDecode(response.body)['error'];
   }
@@ -85,7 +95,7 @@ Future<List<PunctLucru>> getPuncteLucru(Localitate? localitate,
 
 Future<Map<String, dynamic>> verificareTimpAles(PunctLucru punctLucru,
     DateTime data, TipRezervare? tip, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/rezervare/verificare_timp_ales/" +
+  final uri = "https://10.0.2.2:8000/rest_api/rezervare/verificare_timp_ales/" +
       authToken +
       "/";
   final headers = {'Content-Type': 'application/json'};
@@ -107,7 +117,12 @@ Future<Map<String, dynamic>> verificareTimpAles(PunctLucru punctLucru,
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -135,20 +150,20 @@ Future<Map<String, dynamic>> verificareTimpAles(PunctLucru punctLucru,
 }
 
 Future<bool> inregistrareCerereRezervare(
-    clientAplicatie.Client client,
+    clientAplicatie.Client c,
     PunctLucru punctLucru,
     DateTime data,
     TipRezervare? tip,
     String mesaj,
     String authToken) async {
   final uri =
-      "http://10.0.2.2:8000/rest_api/rezervare/inregistrare_rezervare/" +
+      "https://10.0.2.2:8000/rest_api/rezervare/inregistrare_rezervare/" +
           authToken +
           "/";
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {
-    'client': client.id,
+    'client_id': c.id,
     'punct': punctLucru.id,
     'data': data.day.toString() +
         "." +
@@ -166,7 +181,12 @@ Future<bool> inregistrareCerereRezervare(
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,

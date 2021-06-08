@@ -1,5 +1,7 @@
 import 'package:http/http.dart';
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class Judet {
   final int id;
@@ -18,8 +20,13 @@ class Judet {
 }
 
 Future<List<Judet>> getJudete() async {
-  final response = await get(
-      Uri.http('10.0.2.2:8000', '/rest_api/nomenclatoare/get_judete'));
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  final response = await ioClient
+      .get(Uri.https('10.0.2.2:8000', '/rest_api/nomenclatoare/get_judete'));
 
   if (response.statusCode == 200) {
     String jsonString = response.body.substring(1, response.body.length - 1);

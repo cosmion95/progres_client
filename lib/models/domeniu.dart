@@ -1,6 +1,8 @@
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class Domeniu {
   final int id;
@@ -18,7 +20,12 @@ class Domeniu {
 }
 
 Future<List<Domeniu>> getDomenii(String authToken) async {
-  final response = await get(Uri.http('10.0.2.2:8000',
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  final response = await ioClient.get(Uri.https('10.0.2.2:8000',
       '/rest_api/nomenclatoare/get_domenii/' + authToken + "/"));
 
   if (response.statusCode == 200) {

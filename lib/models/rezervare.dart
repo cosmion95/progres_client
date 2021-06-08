@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
 import '../models/client.dart' as clientAplicatie;
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class Rezervare {
   final int id;
@@ -67,9 +69,10 @@ class Rezervare {
 }
 
 Future<Rezervare> getDetaliiRezervare(int rezervareId, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/rezervare/get_detalii_rezervare/" +
-      authToken +
-      "/";
+  final uri =
+      "https://10.0.2.2:8000/rest_api/rezervare/get_detalii_rezervare/" +
+          authToken +
+          "/";
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {'rezervare': rezervareId};
@@ -77,7 +80,12 @@ Future<Rezervare> getDetaliiRezervare(int rezervareId, String authToken) async {
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -93,24 +101,29 @@ Future<Rezervare> getDetaliiRezervare(int rezervareId, String authToken) async {
   }
 }
 
-Future<bool> anulareRezervare(Rezervare rezervare,
-    clientAplicatie.Client client, String mesaj, String authToken) async {
+Future<bool> anulareRezervare(Rezervare rezervare, clientAplicatie.Client c,
+    String mesaj, String authToken) async {
   final uri =
-      "http://10.0.2.2:8000/rest_api/rezervare/anulare_rezervare_client/" +
+      "https://10.0.2.2:8000/rest_api/rezervare/anulare_rezervare_client/" +
           authToken +
           "/";
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {
     'rezervare': rezervare.id,
-    'client': client.id,
+    'client_id': c.id,
     'mesaj': mesaj,
   };
 
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,

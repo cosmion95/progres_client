@@ -1,6 +1,8 @@
 import 'package:http/http.dart';
 import 'dart:convert';
 import '../models/punct_lucru.dart';
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class TipRezervare {
   final int id;
@@ -18,7 +20,7 @@ class TipRezervare {
 
 Future<List<TipRezervare>> getTipuriRezervare(
     PunctLucru punctLucru, String authToken) async {
-  final uri = "http://10.0.2.2:8000/rest_api/tert/get_tipuri_rezervare/" +
+  final uri = "https://10.0.2.2:8000/rest_api/tert/get_tipuri_rezervare/" +
       authToken +
       "/";
   final headers = {'Content-Type': 'application/json'};
@@ -28,7 +30,12 @@ Future<List<TipRezervare>> getTipuriRezervare(
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,

@@ -2,6 +2,8 @@ import 'package:demo_login_app/models/judet.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'localitate.dart';
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class Client {
   final int id;
@@ -33,17 +35,28 @@ class Client {
   }
 }
 
-Future<Map<String, dynamic>> registerClient(String nume, String prenume,
-    String email, String parola, String telefon, Localitate? localitate) async {
-  final uri = 'http://10.0.2.2:8000/rest_api/client/register_client/';
+Future<Map<String, dynamic>> registerClient(
+    String nume,
+    String prenume,
+    String email,
+    String parola,
+    String salt,
+    String telefon,
+    Localitate? localitate) async {
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  final uri = 'https://10.0.2.2:8000/rest_api/client/register_client/';
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {
     'nume': nume,
     'prenume': prenume,
     'email': email,
-    'username': email,
     'parola': parola,
+    'salt': salt,
     'telefon': telefon,
     'localitate': localitate?.id
   };
@@ -51,7 +64,7 @@ Future<Map<String, dynamic>> registerClient(String nume, String prenume,
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -67,7 +80,7 @@ Future<Map<String, dynamic>> registerClient(String nume, String prenume,
 
 Future<void> verificaCodInregistrare(
     String clientEmail, String codInregistrare, String authToken) async {
-  final uri = 'http://10.0.2.2:8000/rest_api/client/validare_cont_client/' +
+  final uri = 'https://10.0.2.2:8000/rest_api/client/validare_cont_client/' +
       authToken +
       '/';
   final headers = {'Content-Type': 'application/json'};
@@ -80,7 +93,12 @@ Future<void> verificaCodInregistrare(
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -95,7 +113,7 @@ Future<void> verificaCodInregistrare(
 Future<void> retrimiteCodInregistrare(
     String clientEmail, String authToken) async {
   final uri =
-      'http://10.0.2.2:8000/rest_api/client/generare_cod_inregistrare/' +
+      'https://10.0.2.2:8000/rest_api/client/generare_cod_inregistrare/' +
           authToken +
           '/';
   final headers = {'Content-Type': 'application/json'};
@@ -105,7 +123,12 @@ Future<void> retrimiteCodInregistrare(
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -118,7 +141,12 @@ Future<void> retrimiteCodInregistrare(
 }
 
 Future<Map<String, dynamic>> login(String email, String pass) async {
-  final uri = 'http://10.0.2.2:8000/rest_api/client/login/';
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  final uri = 'https://10.0.2.2:8000/rest_api/client/login/';
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {'email': email, 'pass': pass};
@@ -126,7 +154,7 @@ Future<Map<String, dynamic>> login(String email, String pass) async {
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -143,7 +171,7 @@ Future<Map<String, dynamic>> login(String email, String pass) async {
 Future<void> verificaCodLogin(
     String clientEmail, String codInregistrare, String authToken) async {
   final uri =
-      'http://10.0.2.2:8000/rest_api/client/validare_login/' + authToken + '/';
+      'https://10.0.2.2:8000/rest_api/client/validare_login/' + authToken + '/';
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {
@@ -154,7 +182,12 @@ Future<void> verificaCodLogin(
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -167,7 +200,7 @@ Future<void> verificaCodLogin(
 }
 
 Future<void> retrimiteCodLogin(String clientEmail, String authToken) async {
-  final uri = 'http://10.0.2.2:8000/rest_api/client/generare_cod_login/' +
+  final uri = 'https://10.0.2.2:8000/rest_api/client/generare_cod_login/' +
       authToken +
       '/';
   final headers = {'Content-Type': 'application/json'};
@@ -177,7 +210,12 @@ Future<void> retrimiteCodLogin(String clientEmail, String authToken) async {
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -190,7 +228,7 @@ Future<void> retrimiteCodLogin(String clientEmail, String authToken) async {
 }
 
 Future<Client> getClientFromEmail(String email, String authToken) async {
-  final uri = 'http://10.0.2.2:8000/rest_api/client/get_client_from_email/' +
+  final uri = 'https://10.0.2.2:8000/rest_api/client/get_client_from_email/' +
       authToken +
       '/';
   final headers = {'Content-Type': 'application/json'};
@@ -200,7 +238,12 @@ Future<Client> getClientFromEmail(String email, String authToken) async {
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
@@ -227,7 +270,7 @@ Future<Client> getClientFromEmail(String email, String authToken) async {
       denumire: clientMap["loc_denumire"],
       judet: judet);
 
-  Client client = new Client(
+  Client c = new Client(
       id: clientMap["id"],
       nume: clientMap["nume"],
       prenume: clientMap["prenume"],
@@ -236,11 +279,16 @@ Future<Client> getClientFromEmail(String email, String authToken) async {
       localitate: localitate,
       rataPrezenta: clientMap["rata_prezenta"]);
 
-  return client;
+  return c;
 }
 
 Future<String> getSalt(String email) async {
-  final uri = "http://10.0.2.2:8000/rest_api/client/get_salt/";
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  final uri = "https://10.0.2.2:8000/rest_api/client/get_salt/";
   final headers = {'Content-Type': 'application/json'};
 
   Map<String, dynamic> body = {'email': email};
@@ -248,12 +296,8 @@ Future<String> getSalt(String email) async {
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
-    Uri.parse(uri),
-    headers: headers,
-    body: jsonBody,
-    encoding: encoding,
-  );
+  Response response = await ioClient.post(Uri.parse(uri),
+      body: jsonBody, encoding: encoding, headers: headers);
 
   if (response.statusCode == 200) {
     String jsonString = response.body.substring(1, response.body.length - 1);

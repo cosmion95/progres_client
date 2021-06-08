@@ -4,6 +4,8 @@ import '../models/localitate.dart';
 import '../models/client.dart';
 import 'package:email_validator/email_validator.dart';
 import 'register_token.dart';
+import 'package:crypt/crypt.dart';
+import 'dart:math';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);
@@ -47,13 +49,24 @@ class _RegisterPageState extends State<RegisterPage> {
     return checkEmail;
   }
 
+  String getRandom(int length) {
+    const ch = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz';
+    Random r = Random.secure();
+    return String.fromCharCodes(
+        Iterable.generate(length, (_) => ch.codeUnitAt(r.nextInt(ch.length))));
+  }
+
   Future<void> register() async {
     try {
+      String clientSalt = getRandom(12);
+      var hashPass = Crypt.sha256(passController.text, salt: clientSalt);
+
       Map<String, dynamic> clientMap = await registerClient(
           numeController.text,
           prenumeController.text,
           emailController.text,
-          passController.text,
+          hashPass.toString(),
+          clientSalt,
           telefonController.text,
           localitateAleasa);
       Navigator.of(context).push(MaterialPageRoute(

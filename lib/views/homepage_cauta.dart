@@ -22,6 +22,10 @@ class HomepageCautaState extends State<HomepageCauta> {
   Localitate? localitateAleasa;
   Domeniu? domeniuAles;
 
+  int pagina = 1;
+  bool isLoading = true;
+  List<PunctLucru> puncteLucru = [];
+
   String denumireJudetAles = "Judet";
   String denumireLocalitateAleasa = "Localitate";
   String denumireDomeniuAles = "Domeniu";
@@ -35,6 +39,24 @@ class HomepageCautaState extends State<HomepageCauta> {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => PunctLucruView(punctLucru, widget.client,
             widget.authToken, urmatoareaZiLucratoare)));
+  }
+
+  Future<void> getPuncte() async {
+    pagina += 1;
+    List<PunctLucru> puncteNoi = await getPuncteLucru(localitateAleasa,
+        domeniuAles, cuvinteCheieController.text, widget.authToken, pagina);
+    puncteLucru.addAll(puncteNoi);
+    isLoading = false;
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (this.localitateAleasa == null) {
+      this.localitateAleasa = widget.client.localitate;
+    }
+    this.getPuncte();
   }
 
   @override
@@ -68,6 +90,7 @@ class HomepageCautaState extends State<HomepageCauta> {
                   ],
                 )),
             Column(
+              mainAxisSize: MainAxisSize.max,
               children: [
                 Row(
                   children: [
@@ -229,46 +252,48 @@ class HomepageCautaState extends State<HomepageCauta> {
                       },
                       child: Icon(Icons.search))
                 ]),
-                FutureBuilder<List<PunctLucru>>(
-                  future: getPuncteLucru(localitateAleasa, domeniuAles,
-                      cuvinteCheieController.text, widget.authToken),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      print(snapshot.error);
-                      return Text(snapshot.error.toString());
-                    }
-                    return snapshot.hasData
-                        ? Padding(
-                            padding:
-                                EdgeInsets.only(left: 20, right: 20, bottom: 5),
-                            child: Container(
-                                child: ListView.builder(
-                                    itemCount: snapshot.data!.length,
-                                    scrollDirection: Axis.vertical,
-                                    shrinkWrap: true,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          detaliiPunct(snapshot.data![index]);
-                                        },
-                                        child: PunctListWidget(
-                                            snapshot.data![index]),
-                                      );
-                                    })))
-                        : Padding(
-                            padding:
-                                EdgeInsets.only(left: 15, right: 15, bottom: 5),
-                            child: Container(
-                              child: Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            ));
-                  },
-                ),
               ],
-            )
+            ),
+            Expanded(
+                child: NotificationListener<ScrollNotification>(
+              onNotification: (ScrollNotification scrollInfo) {
+                if (!isLoading &&
+                    scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent) {
+                  this.getPuncte();
+                  setState(() {
+                    isLoading = true;
+                  });
+                }
+                return false;
+              },
+              child: _buildListView(),
+            )),
+            Container(
+              height: isLoading ? 50.0 : 0,
+              color: Colors.white30,
+              child: Center(
+                child: new CircularProgressIndicator(
+                  color: Colors.orange,
+                ),
+              ),
+            ),
           ],
         )));
+  }
+
+  Widget _buildListView() {
+    return ListView.builder(
+        itemCount: puncteLucru.length,
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            onTap: () {
+              detaliiPunct(puncteLucru[index]);
+            },
+            child: PunctListWidget(puncteLucru[index]),
+          );
+        });
   }
 }

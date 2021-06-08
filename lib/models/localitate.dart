@@ -1,6 +1,8 @@
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'judet.dart';
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class Localitate {
   final int id;
@@ -22,13 +24,19 @@ Future<List<Localitate>> getLocalitati(Judet? judet) async {
   if (judet == null) {
     return [];
   }
-  final uri = 'http://10.0.2.2:8000/rest_api/nomenclatoare/get_localitati/';
+
+  final uri = 'https://10.0.2.2:8000/rest_api/nomenclatoare/get_localitati/';
   final headers = {'Content-Type': 'application/json'};
   Map<String, dynamic> body = {'judet': judet.id};
   String jsonBody = json.encode(body);
   final encoding = Encoding.getByName('utf-8');
 
-  Response response = await post(
+  HttpClient client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  var ioClient = new IOClient(client);
+
+  Response response = await ioClient.post(
     Uri.parse(uri),
     headers: headers,
     body: jsonBody,
