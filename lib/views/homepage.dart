@@ -26,9 +26,9 @@ class HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     _widgetOptions = <Widget>[
-      HomepageCont(widget.client, widget.authToken),
       HomepageCauta(widget.client, widget.authToken),
       HomepageRezervari(widget.client, widget.authToken),
+      HomepageCont(widget.client, widget.authToken)
     ];
 
     return Scaffold(
@@ -38,10 +38,6 @@ class HomepageState extends State<Homepage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Cont',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Cauta',
           ),
@@ -49,6 +45,10 @@ class HomepageState extends State<Homepage> {
             icon: Icon(Icons.calendar_today),
             label: 'Rezervari',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Cont',
+          )
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],

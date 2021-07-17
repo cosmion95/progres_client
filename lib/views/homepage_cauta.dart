@@ -42,7 +42,6 @@ class HomepageCautaState extends State<HomepageCauta> {
   }
 
   Future<void> getPuncte() async {
-    pagina += 1;
     List<PunctLucru> puncteNoi = await getPuncteLucru(localitateAleasa,
         domeniuAles, cuvinteCheieController.text, widget.authToken, pagina);
     puncteLucru.addAll(puncteNoi);
@@ -238,6 +237,7 @@ class HomepageCautaState extends State<HomepageCauta> {
                   )),
                   ElevatedButton(
                       onPressed: () {
+                        pagina = 1;
                         domeniuAles = null;
                         denumireDomeniuAles = "Domeniu";
                         cuvinteCheieController.text = "";
@@ -248,7 +248,9 @@ class HomepageCautaState extends State<HomepageCauta> {
                       style: ElevatedButton.styleFrom(
                           primary: Colors.orange.shade300),
                       onPressed: () {
-                        setState(() {});
+                        pagina = 1;
+                        puncteLucru.clear();
+                        getPuncte();
                       },
                       child: Icon(Icons.search))
                 ]),
@@ -260,6 +262,7 @@ class HomepageCautaState extends State<HomepageCauta> {
                 if (!isLoading &&
                     scrollInfo.metrics.pixels ==
                         scrollInfo.metrics.maxScrollExtent) {
+                  pagina += 1;
                   this.getPuncte();
                   setState(() {
                     isLoading = true;
